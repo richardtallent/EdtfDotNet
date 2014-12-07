@@ -25,7 +25,7 @@ While basic, the code can parse, store, and emit individual dates, pairs of date
 
 Unit tests have been created to cover L0 and some L1 features, using the examples from the draft specification.
 
-## To-Do
+## To-Do (if you can help with these, that would be awesom)
 
 - Unit tests to cover the remaining L1 and L2 feature examples
 - Unit tests to cover additional cases (such as counter-examples)
@@ -35,6 +35,15 @@ Unit tests have been created to cover L0 and some L1 features, using the example
 - Utility functions for comparing individual Dates and DatePairs (e.g., "does this date fall within this datepair" or "do these datepairs overlap").
 - Utility functions for comparing, merging, and collapsing DatePairLists, and comparing Dates and DatePairs to them (e.g., a "smart" version of DatePairList.Contains(Date)).
 - Performance testing and tuning with large sets of data.
+
+## Code Conventions and Decisions
+
+- I admit my preferences for formatting C# code are a bit outside the norm. I use tabs and I tend to minimize unnecessary vertical fluff. Please don't send pull requests to reformat my code.
+- Since this is a personal project, I use Xamarin Studio, not VS.NET, so there may be occasional wrinkles in what VS expects in the solution and project files.
+- This project is built to be Mono-compatible (currently v. 3.10.0).
+- Structures are used for the dates and date pairs to provide immutability and to make the structures more comparable to DateTime values.
+- The primary parser is written using RegEx. My first attempt was to write a run-of-the-mill character-based lexer, but the backtracking required for some EDTF features was a pain, and regular expressions are pretty darned fast when compiled. Rather than dealing with escaping strings, the main RegEx pattern is stored as an embedded text file resource and is loaded dynamically by the library when creating the parser. The regex parser is static, compiled, and thread-safe.
+
 
 Data Model Summary
 =======================
@@ -54,11 +63,3 @@ This IList implementation stores DatePairs. There are two modes for these lists:
 ### Why is there a DatePairList instead of a DateList?
 
 EDTF allows a list (set or multiple) to contain not only single dates, but also intervals ("d1/d2") or ranges ("d1..d2", "..d1", or "d1.."). Since Date and DatePair types don't derive from a common base class and they don't share enough in common to merit implementing a common interface, the List implementation is for DatePairs. Single dates can be stored in these collections easily by setting a DatePair's StartValue to that date and leaving the EndValue unused.
-
-
-
-
-
-
-
-
