@@ -41,7 +41,7 @@ Unit tests have been created to cover L0 and some L1 features, using the example
 - This project is built to be Mono-compatible (currently v. 3.10.0).
 - Structures are used for the dates and date pairs to provide immutability and to make the structures more akin to DateTime values.
 - Parsing is performed using regular expressions. My first attempt used a character-based lexer, but the backtracking required for some EDTF features was a pain, and regular expressions are pretty darned fast when compiled.
-- Rather than using constant escapred strings, the main regex pattern is stored as an embedded text file resource and is loaded dynamically by the library when creating the parser. The regex parser is static, compiled, and thread-safe.
+- Rather than using constant escaped strings, the main regex pattern is stored as an embedded text file resource and is loaded dynamically by the library when creating the parser. The regex parser is static, compiled, and thread-safe.
 
 Data Model Summary
 =======================
