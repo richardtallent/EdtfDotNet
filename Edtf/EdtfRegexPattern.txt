@@ -1,0 +1,75 @@
+﻿(?x)
+
+# This RegEx pattern recognizes valid EDTF base dates, i.e., dates without any
+# intervals, sets, choices, before/after flags, etc. It handles all valid dates
+# for Levels 0, 1, and 2.
+#
+# The intent of this pattern is parsing, not strict validation. It will, for example, allow a seasonal
+# qualified for a normal month, or a day/time for a season, neither of which is actually allowed.
+#
+# Named groups are created for the following:
+#
+#	year		The entire year, including opening and closing parenthesis, etc. but not flags
+#	yearnum		The year number, including sign, exponents, and precision
+#	yearflags	The end of the year flags
+#	month		The entire month, including parenthesis, but not flags
+#	monthnum	The month number
+#	seasonqualifier		The optional qualifier for seasons (seasons cannot have days or times)
+#	monthflags	The end of the month flags
+#	day			The entire day, including parenthesis, but not flags
+#	daynum		The day number
+#	time		Time in common HH:MM:SS(Z|+-HH:MM) format, which can be parsed natively by .NET easily
+#
+#	Since only the year is required, the other named groups may not exist.
+
+# YEAR
+y?
+(?<year>
+	\(?									# year optional opening paren
+	(?<yearnum>
+		[+-]?							# optional sign
+		(?:
+			\d+e\d+						# exponential form, no "u" or "x" allowed
+			|[0-9u][0-9ux]{3,}			# decimal form, "u" allowed in the first digit, "u" or "x" in any other
+		)
+	)
+	(?>p(?<yearprecision>\d+))?			# precision, only for exponential form
+	(?<yearcloseparen>\))?				# year optional closing paren
+	(?<yearflags>[~?]{0,2})				# flags
+)
+
+# MONTH
+(?>-
+	(?<month>
+		\(?								# month optional opening paren
+		(?<monthnum>(?>1[0-9u]|[0u][0-9u]|2[1-4]))
+		(?>\^(?<seasonqualifier>\w+))?
+		(?<monthcloseparen>\))?			# month optional closing paren
+	)
+	(?<monthflags>[~?]{0,2})			# month optional flags
+
+	# DAY
+	(?>-
+		(?<day>
+			\(?							# day optional opening paren
+			(?<daynum>(?>[012u][0-9u]|3[01u]))
+			(?<daycloseparen>\))?		# day optional closing paren
+		)
+		(?<dayflags>[~?]{0,2})			# day optional flags
+
+		# TIME
+		(?>T
+			(?<hour>2[0-3]|[01][0-9])	# hour
+			:(?<minute>[0-5][0-9])		# minute
+			:(?<second>[0-5][0-9])		# second
+			(?>											# Time zone offset
+				Z										# Zulu
+				|	(?<tzsign>[+-])
+					(?<tzhour>[01][0-9])
+					:(?<tzminute>[0-5][0-9])			# HH:MM signed
+			)?							# end optional time zone offset
+		)?								# end optional time term
+
+	)?									# end optional day term
+
+)?										# end optional month term
