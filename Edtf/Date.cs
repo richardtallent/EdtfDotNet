@@ -28,13 +28,6 @@ using System;
 
 namespace Edtf {
 
-	public static class Seasons {
-		public static int Spring = 21;
-		public static int Summer = 22;
-		public static int Autumn = 23;
-		public static int Winter = 24;
-	}
-
 	public struct Date {
 
 		public DateStatus Status { get; set; }
@@ -50,8 +43,8 @@ namespace Edtf {
 
 		public override string ToString() {
 			if (Status == DateStatus.Unused) return "";
-			if (Status == DateStatus.Open) return "open";
-			if (Status == DateStatus.Unknown) return "unknown";
+			if (Status == DateStatus.Open) return SpecialValues.Open;
+			if (Status == DateStatus.Unknown) return SpecialValues.Unknown;
 			if (!Year.HasValue) return "";
 			var result = Year.ToString(4, Month.IsUncertain, Month.IsApproximate);
 			if (Month.HasValue) {

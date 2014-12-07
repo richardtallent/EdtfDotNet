@@ -148,7 +148,7 @@ namespace EdtfTests {
 			Assert.AreEqual(2008, TestDate.EndValue.Year.Value);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
-			Assert.AreEqual(false, TestDate.IsInclusive);
+			Assert.AreEqual(false, TestDate.IsRange);
 			Assert.AreEqual(DateString, TestDate.ToString());
 		}
 
@@ -161,7 +161,7 @@ namespace EdtfTests {
 			Assert.AreEqual(8, TestDate.EndValue.Month.Value);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
-			Assert.AreEqual(false, TestDate.IsInclusive);
+			Assert.AreEqual(false, TestDate.IsRange);
 			Assert.AreEqual(DateString, TestDate.ToString());
 		}
 
@@ -176,7 +176,7 @@ namespace EdtfTests {
 			Assert.AreEqual(8, TestDate.EndValue.Day.Value);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
-			Assert.AreEqual(false, TestDate.IsInclusive);
+			Assert.AreEqual(false, TestDate.IsRange);
 			Assert.AreEqual(DateString, TestDate.ToString());
 		}
 
@@ -191,7 +191,7 @@ namespace EdtfTests {
 			Assert.AreEqual(false, TestDate.EndValue.Day.HasValue);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
-			Assert.AreEqual(false, TestDate.IsInclusive);
+			Assert.AreEqual(false, TestDate.IsRange);
 			Assert.AreEqual(DateString, TestDate.ToString());
 		}
 
@@ -206,7 +206,7 @@ namespace EdtfTests {
 			Assert.AreEqual(false, TestDate.EndValue.Day.HasValue);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
-			Assert.AreEqual(false, TestDate.IsInclusive);
+			Assert.AreEqual(false, TestDate.IsRange);
 			Assert.AreEqual(DateString, TestDate.ToString());
 		}
 
@@ -221,7 +221,7 @@ namespace EdtfTests {
 			Assert.AreEqual(false, TestDate.EndValue.Day.HasValue);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
-			Assert.AreEqual(false, TestDate.IsInclusive);
+			Assert.AreEqual(false, TestDate.IsRange);
 			Assert.AreEqual(DateString, TestDate.ToString());
 		}
 

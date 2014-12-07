@@ -67,12 +67,12 @@ namespace Edtf {
 				return result;
 			}
 
-			if (rawValue == "open") {
+			if (rawValue == SpecialValues.Open) {
 				result.Status = DateStatus.Open;
 				return result;
 			}
 
-			if (rawValue == "unknown") {
+			if (rawValue == SpecialValues.Unknown) {
 				result.Status = DateStatus.Unknown;
 				return result;
 			}

@@ -55,7 +55,7 @@ namespace Edtf {
 			if (pvtMode == DatePairListMode.Multiple) {
 				return '{' + CDL + '}';
 			}
-			if (pvtList.Count == 1 && !pvtList[0].IsInclusive) {
+			if (pvtList.Count == 1 && !pvtList[0].IsRange) {
 				return CDL;
 			}
 			return '[' + CDL + ']';

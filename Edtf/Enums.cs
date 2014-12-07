@@ -49,4 +49,19 @@ namespace Edtf {
 	}
 	*/
 
+	// These aren't enums, just collections of static values, but they fulfill a similar purpose
+
+	public static class SpecialValues {
+		public static string Open = "open";
+		public static string Unknown = "unknown";
+	}
+
+	public static class Seasons {
+		public static int Spring = 21;
+		public static int Summer = 22;
+		public static int Autumn = 23;
+		public static int Winter = 24;
+	}
+
+
 }

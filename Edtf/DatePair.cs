@@ -41,24 +41,30 @@ namespace Edtf {
 		public Date EndValue { get; set; }
 
 		/// <summary>
-		/// By default, a Date's two values are considered to be an interval, or for the case
-		/// where there is no EndValue, a single date. This property is used to specify that
-		/// the StartValue and EndValue should be considered a series of dates between them,
-		/// inclusive, rather than an interval, which covers the entire time period. If only
-		/// StartValue is specified, this becomes an "on or after" date.
+		/// By default, a Date's two values are considered to be an Interval (every possible instant
+		/// between the StartValue and EndValue, or for the case where there is no EndValue, a single
+		/// date). But if IsRange is true, this DatePair includes all *discrete* values between the
+		/// StartValue and EndValue using the most precise of the StartValue and EndValue values. For
+		/// example, 2008..2010 represents the range of 2008, 2009, 2010, but would not precisely
+		/// match the date 2008-03-22, whereas 2008/2010 would. IsRange can be used with only one of
+		/// the two values -- if only StartValue is specified, this becomes an "on or after" date.
 		/// If only EndValue is specified, it is "on or before" that date.
 		/// </summary>
-		/// <value><c>true</c> if this instance is inclusive; otherwise, <c>false</c>.</value>
-		public bool IsInclusive { get; set; }
+		/// <value><c>true</c> if this instance is a range of discrete; <c>false</c>.</value> if it
+		/// is a single date value or represents the entire interval of time between the values.
+		public bool IsRange { get; set; }
+
+		private const char IntervalDelimiter = '/';
+		private const string RangeDelimiter = "..";
 
 		public override string ToString() {
 			var s = StartValue.ToString();
 			var e = EndValue.ToString();
-			if (IsInclusive)
-				return s + ".." + e;
+			if (IsRange)
+				return s + RangeDelimiter + e;
 			if (String.IsNullOrEmpty(e))
 				return s;
-			return s + '/' + e;
+			return s + IntervalDelimiter + e;
 		}
 
 		/*
@@ -76,27 +82,28 @@ namespace Edtf {
 
 		public static DatePair Parse(string s) {
 			var result = new DatePair();
-			if (String.IsNullOrEmpty(s))
-				return result;
-			string sv = "", ev = "";
-			var i = s.IndexOf('/');
-			if (i > 0) {
-				sv = s.Substring(0, i);
-				ev = s.Substring(i + 1);
-			} else if (s.StartsWith("..", StringComparison.InvariantCulture)) {
-				ev = s.Substring(2);
-				result.IsInclusive = true;
-			} else if (s.EndsWith("..", StringComparison.InvariantCulture)) {
-				sv = s.Substring(0, s.Length - 2);
-				result.IsInclusive = true;
+			string sv, ev;
+			if (String.IsNullOrEmpty(s)) {
+				sv = String.Empty;
+				ev = String.Empty;
 			} else {
-				i = s.IndexOf("..", StringComparison.InvariantCulture);
-				if(i > 0) {
+				var i = s.IndexOf(IntervalDelimiter);
+				if (i > 0) {
+					// The interval can't start with "/", hence the > instead of >=
 					sv = s.Substring(0, i);
-					ev = s.Substring(i + 2);
-					result.IsInclusive = true;
-				} else {
-					sv = s;
+					ev = s.Substring(i + 1);
+				} else { 
+					var j = s.IndexOf(RangeDelimiter, StringComparison.InvariantCulture);
+					if (j < 0) {
+						// This is not an interval or range, just a single value.
+						sv = s;
+						ev = String.Empty;
+					} else {
+						// Covers sv..ev, ..ev, and sv..
+						sv = s.Substring(0, i);
+						ev = s.Substring(i + RangeDelimiter.Length);
+						result.IsRange = true;
+					}
 				}
 			}
 			result.StartValue = Date.Parse(sv);
