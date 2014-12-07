@@ -11,8 +11,6 @@ http://www.loc.gov/standards/datetime/pre-submission.html
 
 Rather than attempting to create a full parallel implementation of DateTime, EDTF.NET's primary focus is parsing strings containing EDTF data into discrete properties and serializing EDTF date structures to conforming strings.
 
-I do plan to add support so you can convert DateTime values and EDTF structures to one another implicitly, but because EDTF can support various kinds of uncertainty, conversions *to* DateTime may fail.
-
 History and Current Status
 ==========================
 
@@ -25,7 +23,7 @@ While basic, the code can parse, store, and emit individual dates, pairs of date
 
 Unit tests have been created to cover L0 and some L1 features, using the examples from the draft specification.
 
-## To-Do (if you can help with these, that would be awesom)
+## To-Do (if you can help with these, that would be awesome)
 
 - Unit tests to cover the remaining L1 and L2 feature examples
 - Unit tests to cover additional cases (such as counter-examples)
@@ -41,9 +39,9 @@ Unit tests have been created to cover L0 and some L1 features, using the example
 - I admit my preferences for formatting C# code are a bit outside the norm. I use tabs and I tend to minimize unnecessary vertical fluff. Please don't send pull requests to reformat my code.
 - Since this is a personal project, I use Xamarin Studio, not VS.NET, so there may be occasional wrinkles in what VS expects in the solution and project files.
 - This project is built to be Mono-compatible (currently v. 3.10.0).
-- Structures are used for the dates and date pairs to provide immutability and to make the structures more comparable to DateTime values.
-- The primary parser is written using RegEx. My first attempt was to write a run-of-the-mill character-based lexer, but the backtracking required for some EDTF features was a pain, and regular expressions are pretty darned fast when compiled. Rather than dealing with escaping strings, the main RegEx pattern is stored as an embedded text file resource and is loaded dynamically by the library when creating the parser. The regex parser is static, compiled, and thread-safe.
-
+- Structures are used for the dates and date pairs to provide immutability and to make the structures more akin to DateTime values.
+- Parsing is performed using regular expressions. My first attempt used a character-based lexer, but the backtracking required for some EDTF features was a pain, and regular expressions are pretty darned fast when compiled.
+- Rather than using constant escapred strings, the main RegEx pattern is stored as an embedded text file resource and is loaded dynamically by the library when creating the parser. The regex parser is static, compiled, and thread-safe.
 
 Data Model Summary
 =======================
@@ -55,11 +53,11 @@ The main date parts (year, month, and day) have both a value and metadata regard
 The Date structure is analogous to .NET's DateTime type.
 
 ## DatePair
-Dates can appear in _intervals_ and _ranges_. This structure supports an individual interval or range between a start date and end date.
+Dates can appear in intervals ("d1/d2") or ranges ("d1..d2", "..d1", or "d1.."). This structure supports an interval or range between a start date and end date. (Note: ranges can only appear within a list, but intervals can appear outside of [] or {} braces.)
 
 ## DatePairList
 This IList implementation stores DatePairs. There are two modes for these lists: "One of a Set" and "Multiple." The first is the default, and indicates that the true value is one of the list of dates provided, but the actual value is unknown. This is rendered in EDTF as `[d1, d2, ...]`. The latter mode is used when _all_ of the dates in the list are equally true (for example, a list of dates where an employee received a paycheck).
 
 ### Why is there a DatePairList instead of a DateList?
 
-EDTF allows a list (set or multiple) to contain not only single dates, but also intervals ("d1/d2") or ranges ("d1..d2", "..d1", or "d1.."). Since Date and DatePair types don't derive from a common base class and they don't share enough in common to merit implementing a common interface, the List implementation is for DatePairs. Single dates can be stored in these collections easily by setting a DatePair's StartValue to that date and leaving the EndValue unused.
+EDTF allows a list (set or multiple) to contain not only single dates, but also intervals or ranges. Since Date and DatePair types don't derive from a common base type and they don't share enough in common to merit implementing a common interface, the List implementation is for DatePairs. Single dates can be stored in these collections easily by using a DatePair with the StartValue set and EndValue unused.
