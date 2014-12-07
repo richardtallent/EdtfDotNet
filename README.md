@@ -41,7 +41,7 @@ Unit tests have been created to cover L0 and some L1 features, using the example
 - This project is built to be Mono-compatible (currently v. 3.10.0).
 - Structures are used for the dates and date pairs to provide immutability and to make the structures more akin to DateTime values.
 - Parsing is performed using regular expressions. My first attempt used a character-based lexer, but the backtracking required for some EDTF features was a pain, and regular expressions are pretty darned fast when compiled.
-- Rather than using constant escapred strings, the main RegEx pattern is stored as an embedded text file resource and is loaded dynamically by the library when creating the parser. The regex parser is static, compiled, and thread-safe.
+- Rather than using constant escapred strings, the main regex pattern is stored as an embedded text file resource and is loaded dynamically by the library when creating the parser. The regex parser is static, compiled, and thread-safe.
 
 Data Model Summary
 =======================
@@ -50,14 +50,13 @@ Data Model Summary
 The main date parts (year, month, and day) have both a value and metadata regarding the presence of a value, the precision, and the certainty. This structure deals with this ambiguity the same way for all three. (EDTF time and time zone offsets don't currently support uncertain values, so time parts are just stored as integers.)
 
 ## Date
-The Date structure is analogous to .NET's DateTime type.
+The `Date` structure is analogous to .NET's DateTime type.
 
 ## DatePair
-Dates can appear in intervals ("d1/d2") or ranges ("d1..d2", "..d1", or "d1.."). This structure supports an interval or range between a start date and end date. (Note: ranges can only appear within a list, but intervals can appear outside of [] or {} braces.)
+`Date` value can appear in intervals (`d1/d2`) or ranges (`d1..d2` or `..d1` or `d1..`, but only within `[]` or `{}`). This structure supports an interval or range between a start date and end date.
 
 ## DatePairList
-This IList implementation stores DatePairs. There are two modes for these lists: "One of a Set" and "Multiple." The first is the default, and indicates that the true value is one of the list of dates provided, but the actual value is unknown. This is rendered in EDTF as `[d1, d2, ...]`. The latter mode is used when _all_ of the dates in the list are equally true (for example, a list of dates where an employee received a paycheck).
+This IList implementation stores `DatePair` values. There are two modes for these lists: `OneOfASet` and `Multiple`. The first is the default, and indicates that the true value is one of the list of dates provided, but the actual value is unknown. This is rendered in EDTF as `[d1, d2, ...]`. The latter mode is used when _all_ of the dates in the list are equally true (for example, a list of dates where an employee received a paycheck).
 
 ### Why is there a DatePairList instead of a DateList?
-
-EDTF allows a list (set or multiple) to contain not only single dates, but also intervals or ranges. Since Date and DatePair types don't derive from a common base type and they don't share enough in common to merit implementing a common interface, the List implementation is for DatePairs. Single dates can be stored in these collections easily by using a DatePair with the StartValue set and EndValue unused.
+EDTF allows a list (set or multiple) to contain not only single dates, but also intervals or ranges. Since the `Date` and `DatePair` types don't derive from a common base type and they don't share enough in common to merit implementing a common interface, the `IList` implementation is for `DatePair` values. Single dates can be stored in these collections easily by using a `DatePair` with the `StartValue` set to the desired date and `EndValue` unused.
