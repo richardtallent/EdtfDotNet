@@ -31,7 +31,7 @@ using System.Text.RegularExpressions;
 
 namespace Edtf {
 
-	public static class BaseDateParser {
+	public static class DateParser {
 
 		private static Regex _matcher;
 		private static object matchLoadLocker = new object();
@@ -59,32 +59,32 @@ namespace Edtf {
 			return Int32.Parse(new string(arr));
 		}
 
-		public static BaseDate Parse(string rawValue) {
-			var result = new BaseDate();
+		public static Date Parse(string rawValue) {
+			var result = new Date();
 
 			if (String.IsNullOrEmpty(rawValue)) {
-				result.Status = BaseDateStatus.Unused;
+				result.Status = DateStatus.Unused;
 				return result;
 			}
 
 			if (rawValue == "open") {
-				result.Status = BaseDateStatus.Open;
+				result.Status = DateStatus.Open;
 				return result;
 			}
 
 			if (rawValue == "unknown") {
-				result.Status = BaseDateStatus.Unknown;
+				result.Status = DateStatus.Unknown;
 				return result;
 			}
 
 			var re = Matcher;
 			var m = re.Match(rawValue);
 			if (!m.Success) {
-				result.Status = BaseDateStatus.Invalid;
+				result.Status = DateStatus.Invalid;
 				return result;
 			}
 
-			result.Status = BaseDateStatus.Normal;
+			result.Status = DateStatus.Normal;
 
 			// Take the returned regular expression match and parse it into the various date/time bits,
 			// validating as needed.

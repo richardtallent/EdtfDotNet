@@ -30,17 +30,17 @@ using System.Collections.Generic;
 
 namespace Edtf {
 
-	public class DateList : IList<Date>, ICollection<Date> {
+	public class DatePairList : IList<DatePair>, ICollection<DatePair> {
 
 		/// <summary>
 		/// By default, a list of dates is a [set], meaning the true value is unknown but is ONE
 		/// of the values in the list. If the mode is set to {multiple}, *every* value is true,
 		/// i.e., there is more than one valid value.
 		/// </summary>
-		private DateListMode pvtMode = DateListMode.Set;
-		private readonly List<Date> pvtList = new List<Date>();
+		private DatePairListMode pvtMode = DatePairListMode.OneOfASet;
+		private readonly List<DatePair> pvtList = new List<DatePair>();
 
-		public DateListMode Mode { 
+		public DatePairListMode Mode { 
 			get {
 				return pvtMode;
 			}
@@ -52,7 +52,7 @@ namespace Edtf {
 		public override string ToString() {
 			if (pvtList.Count == 0) return String.Empty;
 			var CDL = String.Join(", ", from d in pvtList select d.ToString());
-			if (pvtMode == DateListMode.Multiple) {
+			if (pvtMode == DatePairListMode.Multiple) {
 				return '{' + CDL + '}';
 			}
 			if (pvtList.Count == 1 && !pvtList[0].IsInclusive) {
@@ -61,25 +61,25 @@ namespace Edtf {
 			return '[' + CDL + ']';
 		}
 
-		public static DateList Parse(string s) {
-			var result = new DateList();
+		public static DatePairList Parse(string s) {
+			var result = new DatePairList();
 			if (String.IsNullOrEmpty(s)) return result;
 			char firstChar = s[0];
 			bool isMultiple = (firstChar == '{');
 			bool isList = isMultiple || firstChar == '[';
 			if (isList) {
 				// TODO: Validate that last character is } or ]
-				if (isMultiple) result.Mode = DateListMode.Multiple;
-				result.AddRange(from v in s.Substring(1, s.Length - 2).Split('.') select Date.Parse(v.Trim()));
+				if (isMultiple) result.Mode = DatePairListMode.Multiple;
+				result.AddRange(from v in s.Substring(1, s.Length - 2).Split('.') select DatePair.Parse(v.Trim()));
 			} else {
-				var dSingle = Date.Parse(s);
+				var dSingle = DatePair.Parse(s);
 				result.Add(dSingle);
 			}
 			return result;
 		}
 
 		// Convenience function lifted from List<T>, not part of IList
-		public void AddRange(IEnumerable<Date> list) {
+		public void AddRange(IEnumerable<DatePair> list) {
 			if (list == null)
 				return;
 			foreach (var d in list)
@@ -87,11 +87,11 @@ namespace Edtf {
 		}
 
 		#region IList implementation
-		public int IndexOf(Date item) {
+		public int IndexOf(DatePair item) {
 			return pvtList.IndexOf(item);
 		}
 
-		public void Insert(int index, Date item) {
+		public void Insert(int index, DatePair item) {
 			pvtList.Insert(index, item);
 		}
 
@@ -99,7 +99,7 @@ namespace Edtf {
 			pvtList.RemoveAt(index);
 		}
 
-		public Date this[int index] {
+		public DatePair this[int index] {
 			get {
 				return pvtList[index];
 			}
@@ -110,7 +110,7 @@ namespace Edtf {
 		#endregion
 
 		#region ICollection implementation
-		public void Add(Date item) {
+		public void Add(DatePair item) {
 			pvtList.Add(item);
 		}
 
@@ -118,12 +118,12 @@ namespace Edtf {
 			pvtList.Clear();
 		}
 
-		public bool Contains(Date item) {
+		public bool Contains(DatePair item) {
 			return pvtList.Contains(item);
 		}
 
-		/* Abandoned for now, complexities in BaseDate comparison
-		 * public ContainsResult Contains(BaseDate item) {
+		/* Abandoned for now, complexities in Date comparison
+		 * public ContainsResult Contains(Date item) {
 			var r = ContainsResult.No;
 			foreach (var d in this) {
 				var thisR = d.Contains(item);
@@ -137,11 +137,11 @@ namespace Edtf {
 		}
 		*/
 
-		public void CopyTo(Date[] array, int arrayIndex) {
+		public void CopyTo(DatePair[] array, int arrayIndex) {
 			pvtList.CopyTo(array, arrayIndex);
 		}
 
-		public bool Remove(Date item) {
+		public bool Remove(DatePair item) {
 			return pvtList.Remove(item);
 		}
 
@@ -159,7 +159,7 @@ namespace Edtf {
 		#endregion
 
 		#region IEnumerable implementation
-		public IEnumerator<Date> GetEnumerator() {
+		public IEnumerator<DatePair> GetEnumerator() {
 			return pvtList.GetEnumerator();
 		}
 		#endregion

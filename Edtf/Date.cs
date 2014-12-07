@@ -28,80 +28,56 @@ using System;
 
 namespace Edtf {
 
-	/// <summary>
-	/// An ETDF "Date" actually consists of a starting and ending value and a Mode to describe
-	/// how they are related. Both values are optional, but at least one should be provided.
-	/// 
-	/// TODO: Comparison, for reasonable sorting of dates
-	/// 
-	/// </summary>
-	public struct Date	{
+	public static class Seasons {
+		public static int Spring = 21;
+		public static int Summer = 22;
+		public static int Autumn = 23;
+		public static int Winter = 24;
+	}
 
-		public BaseDate StartValue { get; set; }
-		public BaseDate EndValue { get; set; }
+	public struct Date {
 
-		/// <summary>
-		/// By default, a Date's two values are considered to be an interval, or for the case
-		/// where there is no EndValue, a single date. This property is used to specify that
-		/// the StartValue and EndValue should be considered a series of dates between them,
-		/// inclusive, rather than an interval, which covers the entire time period. If only
-		/// StartValue is specified, this becomes an "on or after" date.
-		/// If only EndValue is specified, it is "on or before" that date.
-		/// </summary>
-		/// <value><c>true</c> if this instance is inclusive; otherwise, <c>false</c>.</value>
-		public bool IsInclusive { get; set; }
+		public DateStatus Status { get; set; }
+
+		public DatePart Year;
+		public DatePart Month;
+		public string SeasonQualifier { get; set; }
+		public DatePart Day;
+		public int Hour { get; set; }
+		public int Minute { get; set; }
+		public int Second { get; set; }
+		public int TimeZoneOffset { get; set; }	// In minutes, positive or negative
 
 		public override string ToString() {
-			var s = StartValue.ToString();
-			var e = EndValue.ToString();
-			if (IsInclusive)
-				return s + ".." + e;
-			if (String.IsNullOrEmpty(e))
-				return s;
-			return s + '/' + e;
-		}
-
-		/*
-		 * Abandoned for now due to complexity comparing fuzzy BaseDates.
-		public ContainsResult Contains(BaseDate item) {
-			var rStart = ContainsResult = StartValue.Contains(item);
-			if (rStart == ContainsResult.Yes)
-				return rStart;
-			var rEnd = EndValue.Contains(item);
-			if (rEnd = ContainsResult.Yes)
-				return rEnd;
-			return r;
-		}
-		*/
-
-		public static Date Parse(string s) {
-			var result = new Date();
-			if (String.IsNullOrEmpty(s))
-				return result;
-			string sv = "", ev = "";
-			var i = s.IndexOf('/');
-			if (i > 0) {
-				sv = s.Substring(0, i);
-				ev = s.Substring(i + 1);
-			} else if (s.StartsWith("..", StringComparison.InvariantCulture)) {
-				ev = s.Substring(2);
-				result.IsInclusive = true;
-			} else if (s.EndsWith("..", StringComparison.InvariantCulture)) {
-				sv = s.Substring(0, s.Length - 2);
-				result.IsInclusive = true;
-			} else {
-				i = s.IndexOf("..", StringComparison.InvariantCulture);
-				if(i > 0) {
-					sv = s.Substring(0, i);
-					ev = s.Substring(i + 2);
-					result.IsInclusive = true;
-				} else {
-					sv = s;
+			if (Status == DateStatus.Unused) return "";
+			if (Status == DateStatus.Open) return "open";
+			if (Status == DateStatus.Unknown) return "unknown";
+			if (!Year.HasValue) return "";
+			var result = Year.ToString(4, Month.IsUncertain, Month.IsApproximate);
+			if (Month.HasValue) {
+				result += "-" + Month.ToString(2, Day.IsUncertain, Day.IsApproximate).PadLeft(2, '0');
+				if (Day.HasValue) {
+					result += "-" + Day.ToString(2, false, false).PadLeft(2, '0');
+					if ( (Hour > 0) || (Minute > 0) || (Second > 0) ) {
+						result += "T" + Hour.ToString("00") + ":" + Minute.ToString("00") + ":" + Second.ToString("00");
+						if (TimeZoneOffset == 0) {
+							return result + "Z";
+						} else {
+							var tzHour = TimeZoneOffset / 60;
+							var tzMinute = TimeZoneOffset % 60;
+							result += 
+								(TimeZoneOffset < 0 ? "-" : "+")
+								+ tzHour.ToString("00")
+								+ ":" + tzMinute.ToString("00");
+						}
+					}
 				}
 			}
-			result.StartValue = BaseDate.Parse(sv);
-			result.EndValue = BaseDate.Parse(ev);
 			return result;
+		}
+
+		public static Date Parse(string s) {
+			return DateParser.Parse(s);
 		}
 
 	}

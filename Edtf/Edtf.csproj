@@ -32,12 +32,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FuzzyInt.cs" />
-    <Compile Include="BaseDate.cs" />
-    <Compile Include="Date.cs" />
-    <Compile Include="BaseDateParser.cs" />
-    <Compile Include="DateList.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="DatePair.cs" />
+    <Compile Include="DatePairList.cs" />
+    <Compile Include="DateParser.cs" />
+    <Compile Include="Date.cs" />
+    <Compile Include="DatePart.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

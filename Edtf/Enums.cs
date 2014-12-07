@@ -28,7 +28,7 @@ using System;
 
 namespace Edtf {
 
-	public enum BaseDateStatus {
+	public enum DateStatus {
 		Normal,			// Normal value
 		Unknown,		// There is a value, but we don't know anything about it
 		Open,			// This is not a value because the interval has no beginning or no end
@@ -36,8 +36,8 @@ namespace Edtf {
 		Invalid			// Parsing was not successful, or the date was blank
 	}
 
-	public enum DateListMode {
-		Set,			// Single dates or bracketed list or choices where one choice is the right answer. The default.
+	public enum DatePairListMode {
+		OneOfASet,		// Single dates or bracketed list or choices where one choice is the right answer. The default.
 		Multiple		// Braced list of dates, where EACH date is correct
 	}
 

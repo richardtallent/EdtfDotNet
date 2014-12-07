@@ -43,7 +43,14 @@ y?
 	(?<month>
 		\(?								# month optional opening paren
 		(?<monthnum>(?>1[0-9u]|[0u][0-9u]|2[1-4]))
-		(?>\^(?<seasonqualifier>\w+))?
+
+		# The EDTF spec allows any non-whitespace character here, but a number of characters should be reserved because they can
+		# appear legitimately between date values in sets/pairs. Based on a recommendation to the listserv in December 2014, this
+		# implementation limits the legal characters to Unicode letters, marks, and numbers, plus individual code points for
+		# "_", ":", and "-". Colons are allowed so URNs may be used, but URIs cannot be used currently because "/" is disallowed.
+
+		(?>\^(?<seasonqualifier>[\P{L}\P{N}\P{M}:.-]+))?
+
 		(?<monthcloseparen>\))?			# month optional closing paren
 	)
 	(?<monthflags>[~?]{0,2})			# month optional flags

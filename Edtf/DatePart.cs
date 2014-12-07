@@ -31,7 +31,7 @@ namespace Edtf {
 
 	/// <summary>
 	/// 
-	/// FuzzyInt is a structure that includes both an integer value and flags to convey
+	/// DatePart is a structure that includes both an integer value and flags to convey
 	/// whether there is a value, if it is uncertain and/or approximate, which digits
 	/// were not specified, and how precise the number is.
 	/// 
@@ -49,7 +49,7 @@ namespace Edtf {
 	/// dates further back than the mid-Rhyacian period (2.147 billion years ago).
 	/// 
 	/// </summary>
-	public struct FuzzyInt {
+	public struct DatePart {
 
 		private int pvtValue;
 		public int Value {
