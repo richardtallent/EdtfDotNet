@@ -252,6 +252,7 @@ namespace EdtfTests {
 			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
 			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
 			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(0, TestDate.StartValue.Month.UnspecifiedMask);
 			Assert.AreEqual(true, TestDate.StartValue.Month.IsUncertain);
 			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
@@ -303,31 +304,595 @@ namespace EdtfTests {
 	}
 
 	[TestFixture()] public class TestL1Unspecified {
-		// TODO
+
+		[Test] public void TestL1Unspecified1() {
+			const string DateString = "199u";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(0001, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(1990, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(false, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1Unspecified2() {
+			const string DateString = "19uu";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(0011, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(1900, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(false, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1Unspecified3() {
+			const string DateString = "1999-uu";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1999, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(11, TestDate.StartValue.Month.UnspecifiedMask);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(0, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1Unspecified4() {
+			const string DateString = "1999-01-uu";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1999, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(0, TestDate.StartValue.Month.UnspecifiedMask);
+			Assert.AreEqual(11, TestDate.StartValue.Day.UnspecifiedMask);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(1, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1Unspecified5() {
+			const string DateString = "1999-uu-uu";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1999, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(11, TestDate.StartValue.Month.UnspecifiedMask);
+			Assert.AreEqual(11, TestDate.StartValue.Day.UnspecifiedMask);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(0, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
 	}
 
 	[TestFixture()] public class TestL1ExtendedInterval {
-		// TODO
+
+		[Test] public void TestL1ExtendedInterval1() {
+			const string DateString = "unknown/2006";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2006, TestDate.EndValue.Year.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.EndValue.Year.HasValue);
+			Assert.AreEqual(false, TestDate.EndValue.Month.HasValue);
+			Assert.AreEqual(DateStatus.Unknown, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1ExtendedInterval2() {
+			const string DateString = "2004-06-01/unknown";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(false, TestDate.EndValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(false, TestDate.EndValue.Month.HasValue);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(1, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unknown, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1ExtendedInterval3() {
+			const string DateString = "2004-01-01/open";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(false, TestDate.EndValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(false, TestDate.EndValue.Month.HasValue);
+			Assert.AreEqual(1, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(1, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Open, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1ExtendedInterval4() {
+			const string DateString = "1984~/2004-06";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(2004, TestDate.EndValue.Year.Value);
+			Assert.AreEqual(true, TestDate.EndValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.EndValue.Month.HasValue);
+			Assert.AreEqual(6, TestDate.EndValue.Month.Value);
+			Assert.AreEqual(0, TestDate.EndValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1ExtendedInterval5() {
+			const string DateString = "1984/2004-06~";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(2004, TestDate.EndValue.Year.Value);
+			Assert.AreEqual(true, TestDate.EndValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.EndValue.Month.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.EndValue.Month.HasValue);
+			Assert.AreEqual(6, TestDate.EndValue.Month.Value);
+			Assert.AreEqual(0, TestDate.EndValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1ExtendedInterval6() {
+			const string DateString = "1984~/2004~";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(2004, TestDate.EndValue.Year.Value);
+			Assert.AreEqual(true, TestDate.EndValue.Year.IsApproximate);
+			Assert.AreEqual(false, TestDate.EndValue.Month.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.EndValue.Year.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1ExtendedInterval7() {
+			const string DateString = "1984?/2004?~";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(2004, TestDate.EndValue.Year.Value);
+			Assert.AreEqual(true, TestDate.EndValue.Year.IsUncertain);
+			Assert.AreEqual(true, TestDate.EndValue.Year.IsApproximate);
+			Assert.AreEqual(false, TestDate.EndValue.Month.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.EndValue.Year.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1ExtendedInterval8() {
+			const string DateString = "1984-06?/2004-08?";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(2004, TestDate.EndValue.Year.Value);
+			Assert.AreEqual(true, TestDate.EndValue.Year.IsUncertain);
+			Assert.AreEqual(false, TestDate.EndValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.EndValue.Month.IsUncertain);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.EndValue.Year.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1ExtendedInterval9() {
+			const string DateString = "1984-06-02?/2004-08-08~";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsUncertain);
+			Assert.AreEqual(true, TestDate.StartValue.Day.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(2004, TestDate.EndValue.Year.Value);
+			Assert.AreEqual(8, TestDate.EndValue.Month.Value);
+			Assert.AreEqual(8, TestDate.EndValue.Day.Value);
+			Assert.AreEqual(true, TestDate.EndValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.EndValue.Month.IsApproximate);
+			Assert.AreEqual(true, TestDate.EndValue.Day.IsApproximate);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1ExtendedInterval10() {
+			const string DateString = "1984-06-02?/unknown";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Day.IsUncertain);
+			Assert.AreEqual(0, TestDate.EndValue.Year.Value);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(2, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(false, TestDate.EndValue.Year.HasValue);
+			Assert.AreEqual(false, TestDate.EndValue.Year.IsUncertain);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unknown, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
 	}
 		
 	[TestFixture()] public class TestL1LongYear {
-		// TODO
+
+		[Test] public void TestL1LongYear1() {
+			const string DateString = "y170000002";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(170000002, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1LongYear2() {
+			const string DateString = "y-170000002";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(-170000002, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
 	}
 
 	[TestFixture()] public class TestL1Season {
-		// TODO
+
+		[Test] public void TestL1Season1() {
+			const string DateString = "2001-21";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2001, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(Edtf.Seasons.Spring, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1Season2() {
+			const string DateString = "2003-22";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2003, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(Edtf.Seasons.Summer, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1Season3() {
+			const string DateString = "2000-23";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2000, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(Edtf.Seasons.Autumn, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL1Season4() {
+			const string DateString = "2010-24";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2010, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(Edtf.Seasons.Winter, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
 	}
+
 
 	#endregion
 
 	#region Level 2 Extensions
 
 	[TestFixture()] public class TestL2PartialUncertainApprox {
+
+		[Test] public void TestL2PartialUncertainApprox1() {
+			const string DateString = "2004?-06-11";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Month.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsUncertain);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(11, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUncertainApprox2() {
+			const string DateString = "2004-06~-11";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsApproximate);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(11, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUncertainApprox3() {
+			const string DateString = "2004-(06)?-11";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsUncertain);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(11, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUncertainApprox4() {
+			const string DateString = "2004-06-(11)~";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(false, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Day.IsApproximate);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(11, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUncertainApprox5() {
+			const string DateString = "2004-(06)?~";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsApproximate);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsUncertain);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUncertainApprox6() {
+			const string DateString = "2004-(06-11)?";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsUncertain);
+			Assert.AreEqual(true, TestDate.StartValue.Day.IsUncertain);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(11, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUncertainApprox7() {
+			const string DateString = "2004?-06-(11)~";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Month.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(false, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Day.IsApproximate);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(11, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUncertainApprox8() {
+			const string DateString = "(2004-(06)~)?";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsApproximate);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUncertainApprox9() {
+			const string DateString = "2004?-(06)?~";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsApproximate);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUncertainApprox10() {
+			const string DateString = "(2004)?-06-04~";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Month.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Day.IsApproximate);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(4, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUncertainApprox11() {
+			const string DateString = "(2011)-06-04~";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2011, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Day.IsApproximate);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(4, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUncertainApprox12() {
+			const string DateString = "2011-(06-04)~";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2011, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Day.IsApproximate);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(4, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUncertainApprox13() {
+			const string DateString = "2011-23~";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(2011, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsApproximate);
+			Assert.AreEqual(Seasons.Autumn, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
 		// TODO
 	}
 
 	[TestFixture()] public class TestL2PartialUnspecified {
-		// TODO
+
+		[Test] public void TestL2PartialUnspecified1() {
+			const string DateString = "156u-12-25";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1560, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(12, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(25, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(0001, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(0, TestDate.StartValue.Month.UnspecifiedMask);
+			Assert.AreEqual(0, TestDate.StartValue.Day.UnspecifiedMask);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUnspecified2() {
+			const string DateString = "15uu-12-25";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1500, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(12, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(25, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(0011, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(0, TestDate.StartValue.Month.UnspecifiedMask);
+			Assert.AreEqual(0, TestDate.StartValue.Day.UnspecifiedMask);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUnspecified3() {
+			const string DateString = "15uu-12-uu";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1500, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(12, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(0011, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(0, TestDate.StartValue.Month.UnspecifiedMask);
+			Assert.AreEqual(11, TestDate.StartValue.Day.UnspecifiedMask);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2PartialUnspecified4() {
+			const string DateString = "1560-uu-25";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1560, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(25, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(0000, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(11, TestDate.StartValue.Month.UnspecifiedMask);
+			Assert.AreEqual(00, TestDate.StartValue.Day.UnspecifiedMask);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
 	}
 
 	[TestFixture()] public class TestL2OneOfASet {
@@ -339,7 +904,39 @@ namespace EdtfTests {
 	}
 
 	[TestFixture()] public class TestL2MaskedPrecision {
-		// TODO
+
+		[Test] public void TestL2MaskedPrecision1() {
+			const string DateString = "196x";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1960, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(0000, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(1, TestDate.StartValue.Year.InsignificantDigits);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(false, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2MaskedPrecision2() {
+			const string DateString = "19xx";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(1900, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(0000, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(2, TestDate.StartValue.Year.InsignificantDigits);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(false, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
 	}
 
 	[TestFixture()] public class TestL2ExtendedInterval {
@@ -347,7 +944,55 @@ namespace EdtfTests {
 	}
 
 	[TestFixture()] public class TestL2LongYearExponential {
-		// TODO
+
+		[Test] public void TestL2LongYearExponential1() {
+			const string DateString = "y17e7";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(170000000, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(0, TestDate.StartValue.Year.InsignificantDigits);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(false, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			//Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2LongYearExponential2() {
+			const string DateString = "y-17e7";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(-170000000, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(0, TestDate.StartValue.Year.InsignificantDigits);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(false, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			//Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
+		[Test] public void TestL2LongYearExponential3() {
+			const string DateString = "y17101e4p3";
+			var TestDate = Edtf.DatePair.Parse(DateString);
+			Assert.AreEqual(171010000, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(0, TestDate.StartValue.Year.UnspecifiedMask);
+			Assert.AreEqual(6, TestDate.StartValue.Year.InsignificantDigits);
+			Assert.AreEqual(true, TestDate.StartValue.Year.HasValue);
+			Assert.AreEqual(false, TestDate.StartValue.Month.HasValue);
+			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
+			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
+			//Assert.AreEqual(DateString, TestDate.ToString());
+		}
+
 	}
 
 	#endregion

@@ -85,97 +85,111 @@ namespace Edtf {
 			}
 
 			result.Status = DateStatus.Normal;
+			var g = m.Groups;
+
 
 			// Take the returned regular expression match and parse it into the various date/time bits,
 			// validating as needed.
 
-			var YearVal = m.Groups["yearnum"].Value;
+			var YearVal = g["yearnum"].Value;
+
 
 			// A Year is required.
 			if (String.IsNullOrEmpty(YearVal))
 				return result;
 
 			// Convert the year, this handles both normal and scientific notation
-			result.Year.Value = Convert.ToInt32(Single.Parse(YearVal.Replace('u', '0').Replace('x', '0')));
-			result.Year.UnspecifiedMask = GetMask(YearVal, 'u');
-			var YearPrecision = m.Groups["yearprecision"].Value;
-			if (String.IsNullOrEmpty(YearPrecision)) {
-				result.Year.FirstPreciseDigitPlace = (YearVal.Count(t => t == 'x')) + 1;
-			} else {
-				// TODO: Not in the same terms
-				result.Year.FirstPreciseDigitPlace = Byte.Parse(YearPrecision);
+			// Only parse using a Double first if there is an exponent.
+			result.Year = DatePart.Parse(YearVal, true);
+
+			var YearPrecision = g["yearprecision"].Value;
+			if (!String.IsNullOrEmpty(YearPrecision)) {
+				// The part after "p" are the number of *significant* digits, so
+				// to find the insignificant count, convert the value to a temp
+				// string to get its length.
+				// http://stackoverflow.com/questions/4483886/how-can-i-get-a-count-of-the-total-number-of-digits-in-a-number
+				var TotalDigits = Math.Floor(Math.Log10(result.Year.Value) + 1);
+				var InsigDigits = TotalDigits - Int32.Parse(YearPrecision);
+				result.Year.InsignificantDigits = (InsigDigits < 0) ? (byte)0 : (byte)InsigDigits;
 			}
-			var YearFlagsVal = m.Groups["yearflags"].Value;
+
+			var YearFlagsVal = g["yearflags"].Value;
 			if (!String.IsNullOrEmpty(YearFlagsVal)) {
 				result.Year.IsApproximate = YearFlagsVal.Contains('~');
 				result.Year.IsUncertain = YearFlagsVal.Contains('?');
 			}
 
-			var MonthVal = m.Groups["monthnum"].Value;
-			if (String.IsNullOrEmpty(MonthVal))
-				return result;
-			result.Month.Value = Int32.Parse(MonthVal.Replace('u', '0'));
-			result.Month.UnspecifiedMask = GetMask(MonthVal, 'u');
+			var YearClosesParen = (!String.IsNullOrEmpty(g["yearcloseparen"].Value));
 
-			if (result.Month.Value >= 20) {
-				result.SeasonQualifier = m.Groups["seasonqualifier"].Value;
-				// There won't be a day or time, or if there is, it should be ignored
-				return result;
-			}
+			var MonthVal = g["monthnum"].Value;
+			if (String.IsNullOrEmpty(MonthVal)) return result;
+			result.Month = DatePart.Parse(MonthVal, false);
 
-			var MonthFlagsVal = m.Groups["monthflags"].Value;
+			var MonthOpensParen = (g["month"].Value[0] == '(');
+			var MonthClosesParen = (!String.IsNullOrEmpty(g["monthcloseparen"].Value));
+
+			var MonthFlagsVal = g["monthflags"].Value;
 			if (!String.IsNullOrEmpty(MonthFlagsVal)) {
-				var PropogatesToYear = String.IsNullOrEmpty(m.Groups["monthcloseparen"].Value) || m.Groups["month"].Value[0]!='(';
 				result.Month.IsApproximate = MonthFlagsVal.Contains('~');
 				result.Month.IsUncertain = MonthFlagsVal.Contains('?');
-				if (PropogatesToYear) {
+				if (!MonthOpensParen && !YearClosesParen) {
 					result.Year.IsApproximate |= result.Month.IsApproximate;
 					result.Year.IsUncertain |= result.Month.IsUncertain;
 				}
 			}
 
-			var DayVal = m.Groups["daynum"].Value;
-			if (String.IsNullOrEmpty(DayVal))
+			if (result.Month.Value >= 20) {
+				result.SeasonQualifier = g["seasonqualifier"].Value;
+				// There won't be a day or time, or if there is, it should be ignored
 				return result;
-			result.Day.Value = Int32.Parse(DayVal.Replace('u', '0'));
-			result.Day.UnspecifiedMask = GetMask(DayVal, 'u');
+			}
 
-			var DayFlagsVal = m.Groups["dayflags"].Value;
+			var DayVal = g["daynum"].Value;
+			if (String.IsNullOrEmpty(DayVal)) return result;
+			result.Day = DatePart.Parse(DayVal, false);
+
+			var DayFlagsVal = g["dayflags"].Value;
 			if (!String.IsNullOrEmpty(DayFlagsVal)) {
-				var onlyLocal = m.Groups["day"].Value[0]=='(';
+
 				result.Day.IsApproximate = DayFlagsVal.Contains('~');
 				result.Day.IsUncertain = DayFlagsVal.Contains('?');
-				if (!onlyLocal) {
+
+				// Needs a rewrite to handle (2004-(06)~)?, which closes the month twice for different purposes. Could happen at the day level as well.
+				var DayOpensParen = (g["day"].Value[0]=='(');
+				if (!DayOpensParen && !MonthClosesParen) {
 					result.Month.IsApproximate |= result.Day.IsApproximate;
 					result.Month.IsUncertain |= result.Day.IsUncertain;
-					if ( (m.Groups["month"].Value[0]!='(') || (m.Groups["monthcloseparen"].Value == ")") ) {
+					if (!YearClosesParen && !MonthOpensParen) {
 						result.Year.IsApproximate |= result.Day.IsApproximate;
 						result.Year.IsUncertain |= result.Day.IsUncertain;
 					}
 				}
+
 			}
 
 			// TIME
 
-			var hourVal = m.Groups["hour"].Value;
+			var hourVal = g["hour"].Value;
 			if (String.IsNullOrEmpty(hourVal))
 				return result;
 			result.Hour = Int32.Parse(hourVal);
-			result.Minute = Int32.Parse(m.Groups["minute"].Value);
-			result.Second = Int32.Parse(m.Groups["second"].Value);
+			result.Minute = Int32.Parse(g["minute"].Value);
+			result.Second = Int32.Parse(g["second"].Value);
 
 			// Time zone offset
-			var tzSignValue = m.Groups["tzsign"].Value;
+			var tzSignValue = g["tzsign"].Value;
 			if (!String.IsNullOrEmpty(tzSignValue)) {
 				var tzSign = (tzSignValue == "-") ? -1 : 1;
-				var tzHour = Int32.Parse(m.Groups["tzhour"].Value);
-				var tzMinute = Int32.Parse(m.Groups["tzminute"].Value);
+				var tzHour = Int32.Parse(g["tzhour"].Value);
+				var tzMinute = Int32.Parse(g["tzminute"].Value);
 				result.TimeZoneOffset = tzSign * (tzHour * 60) + tzMinute;
 			}
 
 			return result;
 
 		}
+
+
 	
 	}
 }

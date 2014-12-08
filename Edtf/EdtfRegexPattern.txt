@@ -30,7 +30,7 @@ y?
 		[+-]?							# optional sign
 		(?:
 			\d+e\d+						# exponential form, no "u" or "x" allowed
-			|[0-9u][0-9ux]{3,}			# decimal form, "u" allowed in the first digit, "u" or "x" in any other
+			|[0-9u][0-9ux]*				# decimal form, "u" allowed in the first digit, "u" or "x" in any other
 		)
 	)
 	(?>p(?<yearprecision>\d+))?			# precision, only for exponential form

@@ -26,6 +26,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 
 namespace Edtf {
 
@@ -68,30 +69,75 @@ namespace Edtf {
 		public bool IsApproximate { get; set; }
 
 		public int UnspecifiedMask { get; set; }			// places with a 1 are emitted as "u"
-		public int FirstPreciseDigitPlace { get; set; }	// 1 for year, 2 for decade, etc.
+		public byte InsignificantDigits { get; set; }
 
 		public override string ToString() {
 			return ToString(0, false, false);
+		}
+
+		public static DatePart Parse(string s, bool allowMaskedPrecision) {
+			var result = new DatePart();
+			if(!String.IsNullOrEmpty(s)) {
+
+				if (allowMaskedPrecision) {
+					result.InsignificantDigits = (byte)(s.Count(t => t == 'x'));
+					if (result.InsignificantDigits > 0) {
+						s = s.Replace('x', '0');
+					}
+				}
+
+				var FirstU = s.IndexOf('u');
+				if (FirstU >= 0) {
+					var mask = new String('0', FirstU);
+					var newS = s.Substring(0, FirstU);
+					char c;
+					for (var i = FirstU; i < s.Length; i++) {
+						c = s[i];
+						if (c == 'u') {
+							mask += '1';
+							newS += '0';
+						} else {
+							mask += '0';
+							newS += c;
+						}
+					}
+					result.UnspecifiedMask = Int32.Parse(mask);
+					s = newS;
+				}
+
+				// s no longer contains any "x" or "u" characters, can be safely parsed
+				// Years may be in scientific notation, so if an "e" appears, use 
+				// Double.Parse instead of Int32 directly (an "e" in the first position
+				// would be illegal).
+
+				result.Value = (s.IndexOf('e') > 0) ?
+					Convert.ToInt32(Double.Parse(s))
+					: Int32.Parse(s);
+
+				result.HasValue = true;
+			}
+			return result;
+
 		}
 
 		public string ToString(int padDigits, bool alreadyUncertain, bool alreadyApproximate) {
 
 			if (!HasValue) return String.Empty;
 
-			var u = UnspecifiedMask.ToString(CultureInfo.InvariantCulture);
+			var u = UnspecifiedMask.ToString(CultureInfo.InvariantCulture).PadLeft(padDigits,'0');
 
 			// Get the absolute value because we may need to mask the "u" or "x" positions
 			// Pad it on the left so it has enough characters for the unspecified mask, and
 			// convert it to an array so we can manipulate characters individually.
-			var v = Math.Abs(Value).ToString(CultureInfo.InvariantCulture).PadLeft(u.Length, 'u').ToCharArray();
+			var v = Math.Abs(Value).ToString(CultureInfo.InvariantCulture).PadLeft(u.Length, '0').ToCharArray();
 
-			// If the precision is not 1, set digits to the right of it as "x"
-			for (int x = 1; x < FirstPreciseDigitPlace; x++) {
+			// Set the insignificant digits to "x"
+			for (int x = 1; x <= InsignificantDigits; x++) {
 				v[v.Length - x] = 'x';
 			}
 
-			// Set any unspecified digits
-			for (int i = 1; i < u.Length; i++) {
+			// Set the unspecified digits to "u"
+			for (int i = 1; i <= u.Length; i++) {
 				if (u[u.Length - i] == '1')
 					v[v.Length - i] = 'u';
 			}

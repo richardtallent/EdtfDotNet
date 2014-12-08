@@ -21,11 +21,14 @@ Current Status
 
 While basic, the code can parse, store, and emit individual dates, pairs of dates (intervals/ranges), and lists of dates (actually lists of pairs of dates, both in "one of a set" and "multiple" modes). 
 
-Unit tests have been created to cover L0 and some L1 features, using the examples from the draft specification.
+L2 support has some issues with parenthetical grouping and how that results in propogation of the assignments of "~" and "?" to other date parts.
+
+Unit tests have been created to cover L0, L1, and some L2 features, using the examples from the draft specification.
 
 ## To-Do (if you can help with these, that would be awesome)
 
-- Unit tests to cover the remaining L1 and L2 feature examples
+- Resolve currently-failing L2 unit tests (grouping/qualifier propogation issues on parsing, and re-grouping on ToString())
+- Unit tests to cover the remaining L2 feature examples
 - Unit tests to cover additional cases (such as counter-examples)
 - Implicit conversion to/from DateTime, with appropriate exceptions for failures on the former
 - Stronger exception-handling for 
