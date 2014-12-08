@@ -27,11 +27,10 @@ Unit tests have been created to cover L0, L1, and some L2 features, using the ex
 
 ## To-Do (if you can help with these, that would be awesome)
 
-- Resolve currently-failing L2 unit tests (grouping/qualifier propogation issues on parsing, and re-grouping on ToString())
+- Resolve currently-failing L2 unit tests (grouping/qualifier propogation issues on parsing, and re-grouping on ToString()). To do this, the regex needs to be refactored to allow for multiple closing parenthesis for days or months.
 - Unit tests to cover the remaining L2 feature examples
 - Unit tests to cover additional cases (such as counter-examples)
 - Implicit conversion to/from DateTime, with appropriate exceptions for failures on the former
-- Stronger exception-handling for 
 - Stronger validation to avoid illegal combinations of features (such as anything after a season in a single Date other than a qualifier).
 - Utility functions for comparing individual Dates and DatePairs (e.g., "does this date fall within this datepair" or "do these datepairs overlap").
 - Utility functions for comparing, merging, and collapsing DatePairLists, and comparing Dates and DatePairs to them (e.g., a "smart" version of DatePairList.Contains(Date)).
@@ -39,14 +38,14 @@ Unit tests have been created to cover L0, L1, and some L2 features, using the ex
 
 ## Code Conventions and Decisions
 
-- I admit my preferences for formatting C# code are a bit outside the norm. I use tabs and I tend to minimize unnecessary vertical fluff. Please don't send pull requests to reformat my code.
 - Since this is a personal project, I use Xamarin Studio, not VS.NET, so there may be occasional wrinkles in what VS expects in the solution and project files.
 - This project is built to be Mono-compatible (currently v. 3.10.0).
 - Structures are used for the dates and date pairs to provide immutability and to make the structures more akin to DateTime values.
 - Parsing is performed using regular expressions. My first attempt used a character-based lexer, but the backtracking required for some EDTF features was a pain, and regular expressions are pretty darned fast when compiled.
 - Rather than using constant escaped strings, the main regex pattern is stored as an embedded text file resource and is loaded dynamically by the library when creating the parser. The regex parser is static, compiled, and thread-safe.
+- I admit my preferences for formatting C# code are a bit outside the norm. I use tabs and I tend to minimize unnecessary vertical fluff. Please don't send pull requests just to reformat my code.
 
-Data Model Summary
+Data Structure Summary
 =======================
 
 ## DatePart
@@ -56,7 +55,7 @@ The main date parts (year, month, and day) have both a value and metadata regard
 The `Date` structure is analogous to .NET's DateTime type.
 
 ## DatePair
-`Date` value can appear in intervals (`d1/d2`) or ranges (`d1..d2` or `..d1` or `d1..`, but only within `[]` or `{}`). This structure supports an interval or range between a start date and end date.
+`Date` value can appear in intervals (`d1/d2`) or ranges (`d1..d2` or `..d2` or `d1..`, but only within `[]` or `{}`). This structure supports an interval or range between a start date and end date.
 
 ## DatePairList
 This IList implementation stores `DatePair` values. There are two modes for these lists: `OneOfASet` and `Multiple`. The first is the default, and indicates that the true value is one of the list of dates provided, but the actual value is unknown. This is rendered in EDTF as `[d1, d2, ...]`. The latter mode is used when _all_ of the dates in the list are equally true (for example, a list of dates where an employee received a paycheck).
