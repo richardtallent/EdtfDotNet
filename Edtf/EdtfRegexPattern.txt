@@ -25,7 +25,7 @@
 # YEAR
 y?
 (?<year>
-	\(?									# year optional opening paren
+	(?<yearopenparens>\(+)?				# year optional opening parens
 	(?<yearnum>
 		[+-]?							# optional sign
 		(?:
@@ -34,14 +34,13 @@ y?
 		)
 	)
 	(?>p(?<yearprecision>\d+))?			# precision, only for exponential form
-	(?<yearcloseparen>\))?				# year optional closing paren
-	(?<yearflags>[~?]{0,2})				# flags
+	(?<yearend>\)?[~?]{0,2})			# optional flags and closing paren
 )
 
 # MONTH
 (?>-
 	(?<month>
-		\(?								# month optional opening paren
+		(?<monthopenparens>\(+)?		# month optional opening paren
 		(?<monthnum>(?>1[0-9u]|[0u][0-9u]|2[1-4]))
 
 		# The EDTF spec allows any non-whitespace character here, but a number of characters should be reserved because they can
@@ -50,19 +49,20 @@ y?
 		# "_", ":", and "-". Colons are allowed so URNs may be used, but URIs cannot be used currently because "/" is disallowed.
 
 		(?>\^(?<seasonqualifier>[\P{L}\P{N}\P{M}:.-]+))?
-
-		(?<monthcloseparen>\))?			# month optional closing paren
 	)
-	(?<monthflags>[~?]{0,2})			# month optional flags
+	(?<monthend>
+		(?:\)?[~?]{0,2}){0,2}
+	)									# month optional flags and closing parens
 
 	# DAY
 	(?>-
 		(?<day>
-			\(?							# day optional opening paren
+			(?<dayopenparens>\(+)?		# day optional opening paren
 			(?<daynum>(?>[012u][0-9u]|3[01u]))
-			(?<daycloseparen>\))?		# day optional closing paren
 		)
-		(?<dayflags>[~?]{0,2})			# day optional flags
+		(?<dayend>
+			[)~?]*
+		)								# day optional flags and closing parens
 
 		# TIME
 		(?>T

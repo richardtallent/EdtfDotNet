@@ -266,9 +266,9 @@ namespace EdtfTests {
 			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
 			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
 			Assert.AreEqual(11, TestDate.StartValue.Day.Value);
-			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
-			Assert.AreEqual(true, TestDate.StartValue.Month.IsUncertain);
 			Assert.AreEqual(true, TestDate.StartValue.Day.IsUncertain);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsUncertain);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
 			Assert.AreEqual(DateString, TestDate.ToString());

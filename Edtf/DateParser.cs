@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -87,12 +88,10 @@ namespace Edtf {
 			result.Status = DateStatus.Normal;
 			var g = m.Groups;
 
-
 			// Take the returned regular expression match and parse it into the various date/time bits,
 			// validating as needed.
 
 			var YearVal = g["yearnum"].Value;
-
 
 			// A Year is required.
 			if (String.IsNullOrEmpty(YearVal))
@@ -113,28 +112,57 @@ namespace Edtf {
 				result.Year.InsignificantDigits = (InsigDigits < 0) ? (byte)0 : (byte)InsigDigits;
 			}
 
-			var YearFlagsVal = g["yearflags"].Value;
+			var YearFlagsVal = g["yearend"].Value;
 			if (!String.IsNullOrEmpty(YearFlagsVal)) {
 				result.Year.IsApproximate = YearFlagsVal.Contains('~');
 				result.Year.IsUncertain = YearFlagsVal.Contains('?');
 			}
 
-			var YearClosesParen = (!String.IsNullOrEmpty(g["yearcloseparen"].Value));
+			// Keep a stack of open parenthesis and where they occurred. Also
+			// keep a count of accounted-for ones (where the closing paren
+			// has been reached).
+			var ParenStack = 
+				new String('y', g["yearopenparens"].Value.Length)
+				+ new string('m', g["monthopenparens"].Value.Length)
+				+ new string('d', g["dayopenparens"].Value.Length);
+			var ParensClosed = YearFlagsVal.Count(t => t == ')');
 
 			var MonthVal = g["monthnum"].Value;
 			if (String.IsNullOrEmpty(MonthVal)) return result;
 			result.Month = DatePart.Parse(MonthVal, false);
 
-			var MonthOpensParen = (g["month"].Value[0] == '(');
-			var MonthClosesParen = (!String.IsNullOrEmpty(g["monthcloseparen"].Value));
+			var YearIsProtectedFromFlags = (ParensClosed > 0);
 
-			var MonthFlagsVal = g["monthflags"].Value;
+			var MonthFlagsVal = g["monthend"].Value;
 			if (!String.IsNullOrEmpty(MonthFlagsVal)) {
-				result.Month.IsApproximate = MonthFlagsVal.Contains('~');
-				result.Month.IsUncertain = MonthFlagsVal.Contains('?');
-				if (!MonthOpensParen && !YearClosesParen) {
-					result.Year.IsApproximate |= result.Month.IsApproximate;
-					result.Year.IsUncertain |= result.Month.IsUncertain;
+				foreach (var c in MonthFlagsVal) {
+					switch (c) {
+						case ')':
+							ParensClosed++;
+							break;
+						case '~':
+							result.Month.IsApproximate = true;
+							if (!YearIsProtectedFromFlags) {
+								if (ParensClosed==0 || ParenStack[ParensClosed - 1] == 'y') {
+									// There are no closed parens yet, or the most recent
+									// closed parenthesis opened with the year, which means
+									// this propogates to the year.
+									result.Year.IsApproximate = true;
+								}
+							}
+							break;
+						case '?':
+							result.Month.IsUncertain = true;
+							if (!YearIsProtectedFromFlags) {
+								if (ParensClosed==0 || ParenStack[ParensClosed - 1] == 'y') {
+									// There are no closed parens yet, or the most recent
+									// closed parenthesis opened with the year, which means
+									// this propogates to the year.
+									result.Year.IsUncertain = true;
+								}
+							}
+							break;
+					}
 				}
 			}
 
@@ -148,23 +176,46 @@ namespace Edtf {
 			if (String.IsNullOrEmpty(DayVal)) return result;
 			result.Day = DatePart.Parse(DayVal, false);
 
-			var DayFlagsVal = g["dayflags"].Value;
+			var MonthIsProtectedFromFlags = (ParensClosed > 0) && ParenStack[ParensClosed - 1] == 'm';
+
+			var DayFlagsVal = g["dayend"].Value;
 			if (!String.IsNullOrEmpty(DayFlagsVal)) {
-
-				result.Day.IsApproximate = DayFlagsVal.Contains('~');
-				result.Day.IsUncertain = DayFlagsVal.Contains('?');
-
-				// Needs a rewrite to handle (2004-(06)~)?, which closes the month twice for different purposes. Could happen at the day level as well.
-				var DayOpensParen = (g["day"].Value[0]=='(');
-				if (!DayOpensParen && !MonthClosesParen) {
-					result.Month.IsApproximate |= result.Day.IsApproximate;
-					result.Month.IsUncertain |= result.Day.IsUncertain;
-					if (!YearClosesParen && !MonthOpensParen) {
-						result.Year.IsApproximate |= result.Day.IsApproximate;
-						result.Year.IsUncertain |= result.Day.IsUncertain;
+				foreach (var c in DayFlagsVal) {
+					switch (c) {
+						case ')':
+							ParensClosed++;
+							break;
+						case '~':
+							result.Day.IsApproximate = true;
+							if (!YearIsProtectedFromFlags) {
+								if (ParensClosed==0 || ParenStack[ParensClosed - 1] == 'y') {
+									// There are no closed parens yet, or the most recent
+									// closed parenthesis opened with the year, which means
+									// this propogates to the year.
+									result.Year.IsApproximate = true;
+								}
+							}
+							if (!MonthIsProtectedFromFlags) {
+								if (ParensClosed==0 || ParenStack[ParensClosed - 1] == 'm') {
+									result.Month.IsApproximate = true;
+								}
+							}
+							break;
+						case '?':
+							result.Day.IsUncertain = true;
+							if (!YearIsProtectedFromFlags) {
+								if (ParensClosed==0 || ParenStack[ParensClosed - 1] == 'y') {
+									result.Year.IsUncertain = true;
+								}
+							}
+							if (!MonthIsProtectedFromFlags) {
+								if (ParensClosed==0 || ParenStack[ParensClosed - 1] == 'm') {
+									result.Month.IsUncertain = true;
+								}
+							}
+							break;
 					}
 				}
-
 			}
 
 			// TIME
