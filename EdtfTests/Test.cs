@@ -748,14 +748,14 @@ namespace EdtfTests {
 			const string DateString = "2004?-(06)?~";
 			var TestDate = Edtf.DatePair.Parse(DateString);
 			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
-			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
-			Assert.AreEqual(true, TestDate.StartValue.Month.IsUncertain);
-			Assert.AreEqual(false, TestDate.StartValue.Day.IsUncertain);
-			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
-			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
-			Assert.AreEqual(false, TestDate.StartValue.Day.IsApproximate);
 			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
 			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
+			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsUncertain);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsUncertain);
+			Assert.AreEqual(false, TestDate.StartValue.Day.IsApproximate);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
 			Assert.AreEqual(DateString, TestDate.ToString());
@@ -765,14 +765,14 @@ namespace EdtfTests {
 			const string DateString = "(2004)?-06-04~";
 			var TestDate = Edtf.DatePair.Parse(DateString);
 			Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(4, TestDate.StartValue.Day.Value);
 			Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
 			Assert.AreEqual(false, TestDate.StartValue.Month.IsUncertain);
 			Assert.AreEqual(false, TestDate.StartValue.Day.IsUncertain);
-			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
-			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
 			Assert.AreEqual(true, TestDate.StartValue.Day.IsApproximate);
-			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
-			Assert.AreEqual(4, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
 			Assert.AreEqual(DateString, TestDate.ToString());
@@ -781,12 +781,15 @@ namespace EdtfTests {
 		[Test] public void TestL2PartialUncertainApprox11() {
 			const string DateString = "(2011)-06-04~";
 			var TestDate = Edtf.DatePair.Parse(DateString);
+			// values
 			Assert.AreEqual(2011, TestDate.StartValue.Year.Value);
-			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
-			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
-			Assert.AreEqual(true, TestDate.StartValue.Day.IsApproximate);
 			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
 			Assert.AreEqual(4, TestDate.StartValue.Day.Value);
+			// flags
+			Assert.AreEqual(true, TestDate.StartValue.Day.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
+			// status and ToString()
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
 			Assert.AreEqual(DateString, TestDate.ToString());
@@ -796,11 +799,11 @@ namespace EdtfTests {
 			const string DateString = "2011-(06-04)~";
 			var TestDate = Edtf.DatePair.Parse(DateString);
 			Assert.AreEqual(2011, TestDate.StartValue.Year.Value);
-			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
-			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
-			Assert.AreEqual(true, TestDate.StartValue.Day.IsApproximate);
 			Assert.AreEqual(6, TestDate.StartValue.Month.Value);
 			Assert.AreEqual(4, TestDate.StartValue.Day.Value);
+			Assert.AreEqual(true, TestDate.StartValue.Day.IsApproximate);
+			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
+			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
 			Assert.AreEqual(DateString, TestDate.ToString());
@@ -810,11 +813,11 @@ namespace EdtfTests {
 			const string DateString = "2011-23~";
 			var TestDate = Edtf.DatePair.Parse(DateString);
 			Assert.AreEqual(2011, TestDate.StartValue.Year.Value);
+			Assert.AreEqual(Seasons.Autumn, TestDate.StartValue.Month.Value);
+			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
 			Assert.AreEqual(true, TestDate.StartValue.Month.IsApproximate);
 			Assert.AreEqual(true, TestDate.StartValue.Year.IsApproximate);
 			Assert.AreEqual(false, TestDate.StartValue.Day.IsApproximate);
-			Assert.AreEqual(Seasons.Autumn, TestDate.StartValue.Month.Value);
-			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
 			Assert.AreEqual(DateString, TestDate.ToString());

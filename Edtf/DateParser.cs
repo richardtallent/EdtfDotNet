@@ -32,6 +32,33 @@ using System.Text.RegularExpressions;
 
 namespace Edtf {
 
+	internal struct ParenthesisTracker {
+		public int YearsOpen { get; set; }
+		public int YearsClosed { get; private set; }
+		public int MonthsOpen { get; set; }
+		public int MonthsClosed { get; private set; }
+		public int DaysOpen { get; set; }
+		public int DaysClosed { get; private set; }
+		public bool JustClosedDayParen { get; set; }
+		public bool JustClosedMonthParen { get; set; }
+		public bool JustClosedYearParen { get; set; }
+		public void Close() {
+			JustClosedDayParen = false;
+			JustClosedMonthParen = false;
+			JustClosedYearParen = false;
+			if(DaysOpen > DaysClosed) {
+				DaysClosed++;
+				JustClosedDayParen = true;
+			} else if (MonthsOpen > MonthsClosed) {
+				MonthsClosed++;
+				JustClosedMonthParen = true;
+			} else if (YearsOpen > YearsClosed) {
+				YearsClosed++;
+				JustClosedYearParen = true;
+			}
+		}
+	}
+
 	public static class DateParser {
 
 		private static Regex _matcher;
@@ -118,49 +145,42 @@ namespace Edtf {
 				result.Year.IsUncertain = YearFlagsVal.Contains('?');
 			}
 
-			// Keep a stack of open parenthesis and where they occurred. Also
-			// keep a count of accounted-for ones (where the closing paren
-			// has been reached).
-			var ParenStack = 
-				new String('y', g["yearopenparens"].Value.Length)
-				+ new string('m', g["monthopenparens"].Value.Length)
-				+ new string('d', g["dayopenparens"].Value.Length);
-			var ParensClosed = YearFlagsVal.Count(t => t == ')');
-
 			var MonthVal = g["monthnum"].Value;
 			if (String.IsNullOrEmpty(MonthVal)) return result;
 			result.Month = DatePart.Parse(MonthVal, false);
 
-			var YearIsProtectedFromFlags = (ParensClosed > 0);
+			// Keep a stack of open parenthesis and where they occurred. Also
+			// keep a count of accounted-for ones (where the closing paren
+			// has been reached).
 
+			var Parens = new ParenthesisTracker() { YearsOpen = g["yearopenparens"].Value.Length };
+			{
+				var YearsClosed = YearFlagsVal.Count(t => t == ')');
+				for (int i = 0; i < YearsClosed; i++)
+					Parens.Close();
+			}
+
+			bool YearIsProtected = Parens.JustClosedYearParen;
+			bool YearGetsFlags = !YearIsProtected;
+
+			Parens.MonthsOpen = g["monthopenparens"].Value.Length;
 			var MonthFlagsVal = g["monthend"].Value;
 			if (!String.IsNullOrEmpty(MonthFlagsVal)) {
+				Parens.JustClosedYearParen = false;
+				Parens.JustClosedMonthParen = false;
 				foreach (var c in MonthFlagsVal) {
 					switch (c) {
 						case ')':
-							ParensClosed++;
+							Parens.Close();
+							YearGetsFlags = (!YearIsProtected) && (!Parens.JustClosedMonthParen);
 							break;
 						case '~':
 							result.Month.IsApproximate = true;
-							if (!YearIsProtectedFromFlags) {
-								if (ParensClosed==0 || ParenStack[ParensClosed - 1] == 'y') {
-									// There are no closed parens yet, or the most recent
-									// closed parenthesis opened with the year, which means
-									// this propogates to the year.
-									result.Year.IsApproximate = true;
-								}
-							}
+							result.Year.IsApproximate = result.Year.IsApproximate || YearGetsFlags;
 							break;
 						case '?':
 							result.Month.IsUncertain = true;
-							if (!YearIsProtectedFromFlags) {
-								if (ParensClosed==0 || ParenStack[ParensClosed - 1] == 'y') {
-									// There are no closed parens yet, or the most recent
-									// closed parenthesis opened with the year, which means
-									// this propogates to the year.
-									result.Year.IsUncertain = true;
-								}
-							}
+							result.Year.IsUncertain = result.Year.IsUncertain || YearGetsFlags;
 							break;
 					}
 				}
@@ -176,43 +196,30 @@ namespace Edtf {
 			if (String.IsNullOrEmpty(DayVal)) return result;
 			result.Day = DatePart.Parse(DayVal, false);
 
-			var MonthIsProtectedFromFlags = (ParensClosed > 0) && ParenStack[ParensClosed - 1] == 'm';
-
 			var DayFlagsVal = g["dayend"].Value;
 			if (!String.IsNullOrEmpty(DayFlagsVal)) {
+				Parens.JustClosedYearParen = false;
+				Parens.JustClosedMonthParen = false;
+				Parens.DaysOpen = g["dayopenparens"].Value.Length;
+				YearGetsFlags = !YearIsProtected;
+				bool MonthIsProtected = (Parens.MonthsClosed > 0);
+				bool MonthGetsFlags = !MonthIsProtected;
 				foreach (var c in DayFlagsVal) {
 					switch (c) {
 						case ')':
-							ParensClosed++;
+							Parens.Close();
+							MonthGetsFlags = (!MonthIsProtected) && !Parens.JustClosedDayParen;
+							YearGetsFlags = (!YearIsProtected) && (!Parens.JustClosedDayParen) && (!Parens.JustClosedMonthParen); 
 							break;
 						case '~':
 							result.Day.IsApproximate = true;
-							if (!YearIsProtectedFromFlags) {
-								if (ParensClosed==0 || ParenStack[ParensClosed - 1] == 'y') {
-									// There are no closed parens yet, or the most recent
-									// closed parenthesis opened with the year, which means
-									// this propogates to the year.
-									result.Year.IsApproximate = true;
-								}
-							}
-							if (!MonthIsProtectedFromFlags) {
-								if (ParensClosed==0 || ParenStack[ParensClosed - 1] == 'm') {
-									result.Month.IsApproximate = true;
-								}
-							}
+							result.Year.IsApproximate = result.Year.IsApproximate || YearGetsFlags;
+							result.Month.IsApproximate = result.Month.IsApproximate || MonthGetsFlags;
 							break;
 						case '?':
 							result.Day.IsUncertain = true;
-							if (!YearIsProtectedFromFlags) {
-								if (ParensClosed==0 || ParenStack[ParensClosed - 1] == 'y') {
-									result.Year.IsUncertain = true;
-								}
-							}
-							if (!MonthIsProtectedFromFlags) {
-								if (ParensClosed==0 || ParenStack[ParensClosed - 1] == 'm') {
-									result.Month.IsUncertain = true;
-								}
-							}
+							result.Year.IsUncertain = result.Year.IsUncertain || YearGetsFlags;
+							result.Month.IsUncertain = result.Month.IsUncertain || MonthGetsFlags;
 							break;
 					}
 				}
@@ -239,8 +246,6 @@ namespace Edtf {
 			return result;
 
 		}
-
-
 	
 	}
 }
