@@ -32,7 +32,7 @@ using System.Text.RegularExpressions;
 
 namespace Edtf {
 
-	internal struct ParenthesisTracker {
+	internal class ParenthesisTracker {
 		public int YearsOpen { get; set; }
 		public int YearsClosed { get; private set; }
 		public int MonthsOpen { get; set; }

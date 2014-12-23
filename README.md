@@ -21,13 +21,12 @@ Current Status
 
 While basic, the code can parse, store, and emit individual dates, pairs of dates (intervals/ranges), and lists of dates (actually lists of pairs of dates, both in "one of a set" and "multiple" modes). 
 
-L2 support has some issues with parenthetical grouping and how that results in propogation of the assignments of "~" and "?" to other date parts.
-
 Unit tests have been created to cover L0, L1, and some L2 features, using the examples from the draft specification.
 
 ## To-Do (if you can help with these, that would be awesome)
 
-- Resolve currently-failing L2 unit tests (grouping/qualifier propogation issues on parsing, and re-grouping on ToString()). To do this, the regex needs to be refactored to allow for multiple closing parenthesis for days or months.
+DONE Resolve currently-failing L2 unit tests because of grouping/qualifier propogation issues during parsing.
+- Resolve currently-failing L2 unit tests due to re-grouping issues in ToString()).
 - Unit tests to cover the remaining L2 feature examples
 - Unit tests to cover additional cases (such as counter-examples)
 - Implicit conversion to/from DateTime, with appropriate exceptions for failures on the former
