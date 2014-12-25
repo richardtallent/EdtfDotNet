@@ -70,7 +70,7 @@ y?
 			:(?<minute>[0-5][0-9])		# minute
 			:(?<second>[0-5][0-9])		# second
 			(?>											# Time zone offset
-				Z										# Zulu
+				(?<tzutc>Z)								# Zulu
 				|	(?<tzsign>[+-])
 					(?<tzhour>[01][0-9])
 					:(?<tzminute>[0-5][0-9])			# HH:MM signed

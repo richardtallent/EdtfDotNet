@@ -32,34 +32,43 @@ using System.Text.RegularExpressions;
 
 namespace Edtf {
 
-	internal class ParenthesisTracker {
-		public int YearsOpen { get; set; }
-		public int YearsClosed { get; private set; }
-		public int MonthsOpen { get; set; }
-		public int MonthsClosed { get; private set; }
-		public int DaysOpen { get; set; }
-		public int DaysClosed { get; private set; }
-		public bool JustClosedDayParen { get; set; }
-		public bool JustClosedMonthParen { get; set; }
-		public bool JustClosedYearParen { get; set; }
-		public void Close() {
-			JustClosedDayParen = false;
-			JustClosedMonthParen = false;
-			JustClosedYearParen = false;
-			if(DaysOpen > DaysClosed) {
-				DaysClosed++;
-				JustClosedDayParen = true;
-			} else if (MonthsOpen > MonthsClosed) {
-				MonthsClosed++;
-				JustClosedMonthParen = true;
-			} else if (YearsOpen > YearsClosed) {
-				YearsClosed++;
-				JustClosedYearParen = true;
+	/// <summary>
+	/// This static class contains a single public method for parsing strings into Dates. It is handled
+	/// separately because it is rather long. This could be done using a partial class instead.
+	/// </summary>
+	public static class DateParser {
+
+		/// <summary>
+		/// This class is merely a convenient bucket for some logic and variables used
+		/// by DateParser. It could be inlined for a small performance gain.
+		/// </summary>
+		private class ParenthesisTracker {
+			public int YearsOpen { get; set; }
+			public int YearsClosed { get; private set; }
+			public int MonthsOpen { get; set; }
+			public int MonthsClosed { get; private set; }
+			public int DaysOpen { get; set; }
+			public int DaysClosed { get; private set; }
+			public bool JustClosedDayParen { get; set; }
+			public bool JustClosedMonthParen { get; set; }
+			public bool JustClosedYearParen { get; set; }
+			public void Close() {
+				JustClosedDayParen = false;
+				JustClosedMonthParen = false;
+				JustClosedYearParen = false;
+				if(DaysOpen > DaysClosed) {
+					DaysClosed++;
+					JustClosedDayParen = true;
+				} else if (MonthsOpen > MonthsClosed) {
+					MonthsClosed++;
+					JustClosedMonthParen = true;
+				} else if (YearsOpen > YearsClosed) {
+					YearsClosed++;
+					JustClosedYearParen = true;
+				}
 			}
 		}
-	}
 
-	public static class DateParser {
 
 		private static Regex _matcher;
 		private static object matchLoadLocker = new object();
@@ -82,8 +91,7 @@ namespace Edtf {
 		}
 
 		private static int GetMask(string s, char mc) {
-			var arr = (from c in s
-			           select (c == mc ? '1' : '0')).ToArray();
+			var arr = (from c in s select (c == mc ? '1' : '0')).ToArray();
 			return Int32.Parse(new string(arr));
 		}
 
@@ -236,11 +244,16 @@ namespace Edtf {
 
 			// Time zone offset
 			var tzSignValue = g["tzsign"].Value;
-			if (!String.IsNullOrEmpty(tzSignValue)) {
-				var tzSign = (tzSignValue == "-") ? -1 : 1;
-				var tzHour = Int32.Parse(g["tzhour"].Value);
-				var tzMinute = Int32.Parse(g["tzminute"].Value);
-				result.TimeZoneOffset = tzSign * (tzHour * 60) + tzMinute;
+			if(!String.IsNullOrEmpty(g["tzutc"].Value)) {
+				result.HasTimeZoneOffset = true;
+			} else {
+				if (!String.IsNullOrEmpty(tzSignValue)) {
+					result.HasTimeZoneOffset = true;
+					var tzSign = (tzSignValue == "-") ? -1 : 1;
+					var tzHour = Int32.Parse(g["tzhour"].Value);
+					var tzMinute = Int32.Parse(g["tzminute"].Value);
+					result.TimeZoneOffset = tzSign * (tzHour * 60) + tzMinute;
+				}
 			}
 
 			return result;

@@ -40,20 +40,50 @@ namespace Edtf {
 		public int Minute { get; set; }
 		public int Second { get; set; }
 		public int TimeZoneOffset { get; set; }	// In minutes, positive or negative
+		public bool HasTimeZoneOffset { get; set; }		// Useful to know if "0" means UTC or just undefined
 
 		public override string ToString() {
-			if (Status == DateStatus.Unused) return "";
+			if (Status == DateStatus.Unused) return String.Empty;
 			if (Status == DateStatus.Open) return SpecialValues.Open;
 			if (Status == DateStatus.Unknown) return SpecialValues.Unknown;
-			if (!Year.HasValue) return "";
-			var result = Year.ToString(4, Month.IsUncertain, Month.IsApproximate);
+			if (!Year.HasValue) return String.Empty;
+
+			// FLAG GROUPINGS.
+			// Create flag groupings from right to left. There is more than one valid way to group,
+			// this is the simplest algorithm I could come up with:
+			// -- Wrap a day that has *any* flags the Month doesn't have.
+			// -- Never wrap a month.
+			// -- Wrap a year if it *lacks* flags that the month has.
+
+			var doWrapDay = (Day.IsUncertain && !Month.IsUncertain) || (Day.IsApproximate && !Month.IsApproximate);
+			var doWrapYear = (Month.IsUncertain && !Year.IsUncertain) || (Month.IsApproximate && !Year.IsApproximate);
+
+			var result = doWrapYear ? "(" : String.Empty;
+			result += Year.ToString(4);
+			if (doWrapYear) result += ')';
+			if (Year.IsUncertain && (doWrapYear || !Month.IsUncertain)) result += '?';
+			if (Year.IsApproximate && (doWrapYear || !Month.IsApproximate)) result += '~';
+
 			if (Month.HasValue) {
-				result += "-" + Month.ToString(2, Day.IsUncertain, Day.IsApproximate).PadLeft(2, '0');
+				result += "-";
+				result += Month.ToString(2).PadLeft(2, '0');
+				if (Month.IsUncertain && !Day.IsUncertain) result += '?';
+				if (Month.IsApproximate && !Day.IsApproximate) result += '~';
+
 				if (Day.HasValue) {
-					result += "-" + Day.ToString(2, false, false).PadLeft(2, '0');
+					result += "-";
+					if (doWrapDay) result += '(';
+					result += Day.ToString(2).PadLeft(2, '0');
+					if (doWrapDay) result += ')';
+					if (Day.IsUncertain) result += '?';
+					if (Day.IsApproximate) result += '~';
+
 					if ( (Hour > 0) || (Minute > 0) || (Second > 0) ) {
 						result += "T" + Hour.ToString("00") + ":" + Minute.ToString("00") + ":" + Second.ToString("00");
 						if (TimeZoneOffset == 0) {
+							// The standard is somewhat unclear, but suggests that if there is no "Z" and no TZ offset,
+							// the date does not define a time zone and should not be serialized to use UTC.
+							if (!HasTimeZoneOffset)	return result;
 							return result + "Z";
 						} else {
 							var tzHour = TimeZoneOffset / 60;

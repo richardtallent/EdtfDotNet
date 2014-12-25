@@ -103,10 +103,6 @@ namespace EdtfTests {
 			Assert.AreEqual(1, TestDate.StartValue.Second);
 			Assert.AreEqual(0, TestDate.StartValue.TimeZoneOffset);
 			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
-			// TODO: This fails because the spec does not specify the meaning of the lack of a TZ offset.
-			// If the meaning is a presumption of UTC, this test should be modified. If the meaning is that
-			// the TZ is unknown and should *not* be assumed to be UTC, the code needs to be modified to
-			// track the presence/absence of a 0-value TZ offset.
 			Assert.AreEqual(DateString, TestDate.ToString());
 		}
 
@@ -662,7 +658,7 @@ namespace EdtfTests {
 			Assert.AreEqual(11, TestDate.StartValue.Day.Value);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
-			Assert.AreEqual(DateString, TestDate.ToString());
+			Assert.AreEqual(TestDate, Edtf.DatePair.Parse(TestDate.ToString()));	// Grouping comes out differently on output, compare the results of reparsing
 		}
 
 		[Test] public void TestL2PartialUncertainApprox4() {
@@ -693,7 +689,7 @@ namespace EdtfTests {
 			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
-			Assert.AreEqual(DateString, TestDate.ToString());
+			Assert.AreEqual(TestDate, Edtf.DatePair.Parse(TestDate.ToString()));	// Grouping comes out differently on output, compare the results of reparsing
 		}
 
 		[Test] public void TestL2PartialUncertainApprox6() {
@@ -707,7 +703,7 @@ namespace EdtfTests {
 			Assert.AreEqual(11, TestDate.StartValue.Day.Value);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
-			Assert.AreEqual(DateString, TestDate.ToString());
+			Assert.AreEqual(TestDate, Edtf.DatePair.Parse(TestDate.ToString()));	// Grouping comes out differently on output, compare the results of reparsing
 		}
 
 		[Test] public void TestL2PartialUncertainApprox7() {
@@ -741,7 +737,7 @@ namespace EdtfTests {
 			Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
-			Assert.AreEqual(DateString, TestDate.ToString());
+			Assert.AreEqual(TestDate, Edtf.DatePair.Parse(TestDate.ToString()));	// Grouping comes out differently on output, compare the results of reparsing
 		}
 
 		[Test] public void TestL2PartialUncertainApprox9() {
@@ -758,7 +754,7 @@ namespace EdtfTests {
 			Assert.AreEqual(false, TestDate.StartValue.Day.IsApproximate);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
-			Assert.AreEqual(DateString, TestDate.ToString());
+			Assert.AreEqual(TestDate, Edtf.DatePair.Parse(TestDate.ToString()));	// Grouping comes out differently on output, compare the results of reparsing
 		}
 
 		[Test] public void TestL2PartialUncertainApprox10() {
@@ -806,7 +802,7 @@ namespace EdtfTests {
 			Assert.AreEqual(false, TestDate.StartValue.Year.IsApproximate);
 			Assert.AreEqual(DateStatus.Normal, TestDate.StartValue.Status);
 			Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
-			Assert.AreEqual(DateString, TestDate.ToString());
+			Assert.AreEqual(TestDate, Edtf.DatePair.Parse(TestDate.ToString()));	// Grouping comes out differently on output, compare the results of reparsing
 		}
 
 		[Test] public void TestL2PartialUncertainApprox13() {

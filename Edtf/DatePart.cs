@@ -72,7 +72,7 @@ namespace Edtf {
 		public byte InsignificantDigits { get; set; }
 
 		public override string ToString() {
-			return ToString(0, false, false);
+			return ToString(0);
 		}
 
 		public static DatePart Parse(string s, bool allowMaskedPrecision) {
@@ -120,7 +120,7 @@ namespace Edtf {
 
 		}
 
-		public string ToString(int padDigits, bool alreadyUncertain, bool alreadyApproximate) {
+		public string ToString(int padDigits) {
 
 			if (!HasValue) return String.Empty;
 
@@ -152,11 +152,6 @@ namespace Edtf {
 				// this is more than a 4-digit year, add the "y" prefix (it's optional, but probably wise in these exceptional cases)
 				v2 = 'y' + v2;
 			}
-
-			if (IsUncertain && !alreadyUncertain)
-				v2 += '?';
-			if (IsApproximate && !alreadyApproximate)
-				v2 += '~';
 
 			return v2;
 
