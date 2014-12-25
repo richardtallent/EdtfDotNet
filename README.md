@@ -25,13 +25,13 @@ Unit tests have been created to cover L0, L1, and some L2 features, using the ex
 
 ## To-Do (if you can help with these, that would be awesome)
 
-DONE Resolve currently-failing L2 unit tests because of grouping/qualifier propogation issues during parsing.
-- Resolve currently-failing L2 unit tests due to re-grouping issues in ToString()).
+- DONE Resolve currently-failing L2 unit tests because of grouping/qualifier propogation issues during parsing.
+- DONE Resolve currently-failing L2 unit tests due to re-grouping issues in ToString()).
 - Unit tests to cover the remaining L2 feature examples
 - Unit tests to cover additional cases (such as counter-examples)
 - Implicit conversion to/from DateTime, with appropriate exceptions for failures on the former
 - Stronger validation to avoid illegal combinations of features (such as anything after a season in a single Date other than a qualifier).
-- Utility functions for comparing individual Dates and DatePairs (e.g., "does this date fall within this datepair" or "do these datepairs overlap").
+- Utility functions for comparing individual Dates and DatePairs (e.g., "might this date fall within this datepair" or "could these datepairs overlap").
 - Utility functions for comparing, merging, and collapsing DatePairLists, and comparing Dates and DatePairs to them (e.g., a "smart" version of DatePairList.Contains(Date)).
 - Performance testing and tuning with large sets of data.
 
